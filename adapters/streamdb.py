@@ -17,6 +17,17 @@ from confluent_kafka import (
 from confluent_kafka.admin import AdminClient, NewTopic
 
 
+def ensure_topic(bootstrap_servers: str, topic: str, partitions: int) -> int:
+    """Creates the topic if missing; returns its partition count."""
+    admin = AdminClient({"bootstrap.servers": bootstrap_servers})
+    existing = admin.list_topics(timeout=10).topics.get(topic)
+    if existing is not None:
+        return len(existing.partitions)
+    future = admin.create_topics([NewTopic(topic, num_partitions=partitions)])[topic]
+    future.result()
+    return partitions
+
+
 class StreamProducer(ABC):
     @abstractmethod
     def async_send(self, topic: str, key: str, value: dict) -> None:
