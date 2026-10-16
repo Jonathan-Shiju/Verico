@@ -1,0 +1,29 @@
+{
+  "lead": "393953,477907",
+  "tools": [
+    "account_activity",
+    "account_transfers",
+    "case_file",
+    "cases_for_account",
+    "decision_for_lead",
+    "explain_transactions",
+    "flags_for_account",
+    "investigate_lead",
+    "list_leads",
+    "list_windows",
+    "loops_for_account",
+    "one_hop_across_windows",
+    "open_counterparty_leads",
+    "query_cypher",
+    "record_decision",
+    "summarize",
+    "walk_transaction"
+  ],
+  "windows": 6,
+  "payments": 2,
+  "graphs": 1,
+  "leads": 6,
+  "summary_payments": 26,
+  "walk_steps": 3,
+  "prior_decision": null
+}

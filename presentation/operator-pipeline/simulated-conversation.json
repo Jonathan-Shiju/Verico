@@ -1,0 +1,165 @@
+{
+  "session_id": "sim-f091b25d32dc4c51816a68c4fa62e4a8",
+  "lead": "219922,3227292",
+  "turns": [
+    {
+      "operator": "List the leads I can open.",
+      "agent": "This page has 6 leads. Loops: 219922,3227292; 254949,2167552; 318127,2012559. Residues: pooled:aml:txn:20220828T0000:1655:805833BB0:1693885; split:aml:txn:20220828T0000:1655:805833BB0:402230; split:aml:txn:20220828T0000:1241:802FA6CB0:1117840. Further leads are on the next page.",
+      "calls": [
+        "leads"
+      ],
+      "decision": null
+    },
+    {
+      "operator": "Open lead 219922,3227292 and explain how the payments connect.",
+      "agent": "Lead 219922,3227292 is a loop with payments 219922, 3227292 between 21:80B196ED0, 10605:80B1968F0. Those payments form 1 connected graph.",
+      "calls": [
+        "cf:219922,3227292",
+        "ex:219922+3227292"
+      ],
+      "decision": null
+    },
+    {
+      "operator": "Summarize account 21:80B196ED0.",
+      "agent": "Account 21:80B196ED0 has 15 payments. Entity link 800A402E0 Corporation #29578. The account read is complete.",
+      "calls": [
+        "sum:a:21:80B196ED0"
+      ],
+      "decision": null
+    },
+    {
+      "operator": "Walk down from transaction 219922 two steps.",
+      "agent": "Payment 219922 was received by 10605:80B1968F0. The walk has 1 steps. The walk finished inside its limits.",
+      "calls": [
+        "walk:219922:2"
+      ],
+      "decision": null
+    },
+    {
+      "operator": "Keep lead 219922,3227292. Payments on this lead should be kept.",
+      "agent": "Recorded keep for lead 219922,3227292.",
+      "calls": [
+        "cf:219922,3227292",
+        "keep:219922,3227292"
+      ],
+      "decision": "keep"
+    }
+  ],
+  "log": [
+    {
+      "role": "operator",
+      "text": "List the leads I can open.",
+      "calls": [],
+      "txn_ids": [],
+      "accounts": [],
+      "ts": "1792147418",
+      "id": "1792147418294-0"
+    },
+    {
+      "role": "agent",
+      "text": "This page has 6 leads. Loops: 219922,3227292; 254949,2167552; 318127,2012559. Residues: pooled:aml:txn:20220828T0000:1655:805833BB0:1693885; split:aml:txn:20220828T0000:1655:805833BB0:402230; split:aml:txn:20220828T0000:1241:802FA6CB0:1117840. Further leads are on the next page.",
+      "calls": [
+        "leads"
+      ],
+      "txn_ids": [],
+      "accounts": [],
+      "ts": "1792147418",
+      "id": "1792147418300-0"
+    },
+    {
+      "role": "operator",
+      "text": "Open lead 219922,3227292 and explain how the payments connect.",
+      "calls": [],
+      "txn_ids": [],
+      "accounts": [],
+      "ts": "1792147418",
+      "id": "1792147418661-0"
+    },
+    {
+      "role": "agent",
+      "text": "Lead 219922,3227292 is a loop with payments 219922, 3227292 between 21:80B196ED0, 10605:80B1968F0. Those payments form 1 connected graph.",
+      "calls": [
+        "cf:219922,3227292",
+        "ex:219922+3227292"
+      ],
+      "txn_ids": [
+        219922,
+        3227292
+      ],
+      "accounts": [],
+      "ts": "1792147418",
+      "id": "1792147418662-0"
+    },
+    {
+      "role": "operator",
+      "text": "Summarize account 21:80B196ED0.",
+      "calls": [],
+      "txn_ids": [],
+      "accounts": [],
+      "ts": "1792147425",
+      "id": "1792147425085-0"
+    },
+    {
+      "role": "agent",
+      "text": "Account 21:80B196ED0 has 15 payments. Entity link 800A402E0 Corporation #29578. The account read is complete.",
+      "calls": [
+        "sum:a:21:80B196ED0"
+      ],
+      "txn_ids": [],
+      "accounts": [
+        "21:80B196ED0"
+      ],
+      "ts": "1792147425",
+      "id": "1792147425087-0"
+    },
+    {
+      "role": "operator",
+      "text": "Walk down from transaction 219922 two steps.",
+      "calls": [],
+      "txn_ids": [],
+      "accounts": [],
+      "ts": "1792147425",
+      "id": "1792147425118-0"
+    },
+    {
+      "role": "agent",
+      "text": "Payment 219922 was received by 10605:80B1968F0. The walk has 1 steps. The walk finished inside its limits.",
+      "calls": [
+        "walk:219922:2"
+      ],
+      "txn_ids": [
+        219922
+      ],
+      "accounts": [],
+      "ts": "1792147425",
+      "id": "1792147425118-1"
+    },
+    {
+      "role": "operator",
+      "text": "Keep lead 219922,3227292. Payments on this lead should be kept.",
+      "calls": [],
+      "txn_ids": [],
+      "accounts": [],
+      "ts": "1792147425",
+      "id": "1792147425157-0"
+    },
+    {
+      "role": "agent",
+      "text": "Recorded keep for lead 219922,3227292.",
+      "calls": [
+        "cf:219922,3227292",
+        "keep:219922,3227292"
+      ],
+      "txn_ids": [
+        219922,
+        3227292
+      ],
+      "accounts": [
+        "21:80B196ED0",
+        "10605:80B1968F0"
+      ],
+      "ts": "1792147425",
+      "id": "1792147425158-0"
+    }
+  ]
+}
