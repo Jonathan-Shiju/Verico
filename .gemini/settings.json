@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "aml-graph": {
+      "command": "/Users/jonathanshiju/Documents/Projects/AMLBot/.venv/bin/python",
+      "args": [
+        "GraphRead/server.py"
+      ],
+      "description": "Read AML window graphs and detected loops"
+    }
+  }
+}

@@ -1,3 +1,5 @@
 redis===8.1.0
 confluent-kafka==2.16.0
 FalkorDB==1.7.1
+mcp==2.3.0
+fastmcp==4.1.0
