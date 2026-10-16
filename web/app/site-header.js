@@ -12,12 +12,12 @@ const LINKS = [
 export function SiteHeader() {
   const path = usePathname();
   return (
-    <header className="site-header">
-      <Link href="/" className="mark">
+    <header className="route">
+      <Link href="/" className="carrier">
         Verico
       </Link>
-      <nav>
-        {LINKS.map((link) => {
+      <nav aria-label="Routing">
+        {LINKS.map((link, index) => {
           const current = path === link.href;
           return (
             <Link
@@ -25,6 +25,7 @@ export function SiteHeader() {
               href={link.href}
               aria-current={current ? "page" : undefined}
             >
+              <span>{String(index + 1).padStart(2, "0")}</span>
               {link.label}
             </Link>
           );

@@ -1,72 +1,139 @@
 import Link from "next/link";
 
-const FEATURES = [
-  {
-    title: "Connected payments",
-    text: "Each payment names two accounts. The next payment continues from one of them, so a path is visible instead of a row in a file.",
-  },
-  {
-    title: "Leads ready to open",
-    text: "Money that left and later came back, and payments that add up to one another, are prepared as leads an investigator can open.",
-  },
-  {
-    title: "A walk along the path",
-    text: "From one payment, Verico follows the payments connected to it, so the investigator can see how the money moved.",
-  },
-  {
-    title: "A reading, kept or set aside",
-    text: "The investigator keeps a lead for a person to review, or dismisses it as ordinary. Verico does not decide that a payment is fraud.",
-  },
-  {
-    title: "A case book after a keep",
-    text: "When the investigator asks, the conversation and the payments become a case book. A dismiss does not open one.",
-  },
+const POOLED = [
+  ["12 → 1655", "1,206.81 EUR", "127427", "2022/09/01"],
+  ["5464 → 1655", "1,722.80 EUR", "1615971", "2022/09/02"],
+  ["1655 → 28717", "2,957.08 EUR", "1693885", "2022/09/02"],
+];
+
+const SPLIT = [
+  ["31047 → 1241", "376.16 USD", "1117840", "2022/09/02"],
+  ["1241 → 117453", "161.85 USD", "1828122", "2022/09/02"],
+  ["1241 → 216645", "210.05 USD", "2121045", "2022/09/04"],
+];
+
+const POINTS = [
+  ["Payments forms the chain", "Receipients and Senders - linked via payments"],
+  ["Investigate Leads", "Leads identified are drilled down to pinpoint frauds"],
+  ["Follow the money", "Leads are built by tracing the payment trails"],
+  ["Final Call is yours", "Leads do not make the final call, you do."],
+  ["Document faster", "Automate generating case files on frauds"],
 ];
 
 export default function HomePage() {
   return (
-    <main className="page">
-      <section className="hero">
-        <p className="eyebrow">Payment investigation</p>
-        <h1>Fraud hides in the way payments connect.</h1>
-        <p className="lede">
-          One payment is rarely the whole story. It leaves one account and
-          arrives in another, and a later payment continues from there. A loop,
-          a pool of incoming payments, or a split into several outgoing
-          payments is a path through accounts. Verico reads those paths with
-          an investigator.
-        </p>
-        <Path />
-      </section>
-      <section className="features">
-        <h2>What you work with</h2>
-        <ul>
-          {FEATURES.map((feature) => (
-            <li key={feature.title}>
-              <h3>{feature.title}</h3>
-              <p>{feature.text}</p>
-            </li>
-          ))}
-        </ul>
-        <p className="next-step">
-          <Link href="/method">See how Verico works</Link>
-        </p>
+    <div className="home">
+    <div className="rise">
+    <section className="landing" aria-label="Verico">
+      <div className="landing-copy">
+        <svg viewBox="0 0 16 48" aria-hidden="true">
+          <line x1="8" y1="1" x2="8" y2="34" />
+          <polygon points="3,34 8,47 13,34" />
+        </svg>
+        <p>Transactions take advantage of a graph, where one payment joins the next.</p>
+        <p>Finding leads gets easier, and fraud is analysed at speed.</p>
+      </div>
+    </section>
+    <div className="bill">
+      <h1 className="landing-name">Verico</h1>
+    <main className="sheet">
+      <section className="face" aria-label="Waybill for a prepared lead">
+        <div className="mast">
+          <p className="form-id">VRC-01</p>
+        </div>
+        <div className="pitch">
+          <p>
+            Verico reads a stream of payments as accounts joined together. It prepares the leads,
+            walks them with an investigator, and writes a case book only when they keep a lead and
+            ask for the record.
+          </p>
+          <Link href="/method">
+            Read the routing
+            <svg viewBox="0 0 48 16" aria-hidden="true">
+              <line x1="1" y1="8" x2="34" y2="8" />
+              <polygon points="34,3 47,8 34,13" />
+            </svg>
+          </Link>
+        </div>
+        <div className="cargo">
+          <div className="loop">
+            <h2>Loop</h2>
+            <p>Money left 54219 and came back from 254958. The return is the lead.</p>
+            <figure className="lane">
+              <svg viewBox="0 0 640 250" role="img" aria-label="Payment 325411 goes from 54219 to 254958. Payment 3932103 returns, and that return is the lead.">
+                <text className="station" x="8" y="36">54219</text>
+                <text className="account" x="8" y="58">81464BEA1</text>
+                <text className="station" x="632" y="36" textAnchor="end">254958</text>
+                <text className="account" x="632" y="58" textAnchor="end">8146532E1</text>
+                <line className="out" x1="158" y1="28" x2="462" y2="28" />
+                <polygon className="out-head" points="462,20 486,28 462,36" />
+                <text className="legend" x="320" y="86" textAnchor="middle">
+                  325411 · 0.289661 BTC · 2022/09/01 00:21
+                </text>
+                <text className="mark" x="320" y="132" textAnchor="middle">Lead</text>
+                <text className="station" x="8" y="186">54219</text>
+                <text className="station" x="632" y="186" textAnchor="end">254958</text>
+                <line className="back" x1="486" y1="176" x2="158" y2="176" />
+                <polygon className="back-head" points="158,168 134,176 158,184" />
+                <text className="legend return" x="320" y="214" textAnchor="middle">
+                  3932103 · 0.089911 BTC · 2022/09/08 09:29
+                </text>
+                <text className="caption" x="8" y="242">Window from 2022/09/01</text>
+              </svg>
+            </figure>
+            <div className="invite">
+              <p>Walk this lead. The workspace is the demo.</p>
+              <Link className="stamp" href="/investigate">
+                Take the demo
+              </Link>
+            </div>
+          </div>
+          <div className="leads">
+            <section>
+              <h2>Pooled</h2>
+              <p>Payments from more than one account arrive, then one payment leaves.</p>
+              <ul>
+                {POOLED.map(([path, amount, id, time]) => (
+                  <li key={id}>
+                    <span>{path}</span>
+                    <b>{amount}</b>
+                    <em>{time}</em>
+                    <em>{id}</em>
+                  </li>
+                ))}
+              </ul>
+            </section>
+            <section>
+              <h2>Split</h2>
+              <p>One payment arrives, then leaves toward more than one account.</p>
+              <ul>
+                {SPLIT.map(([path, amount, id, time]) => (
+                  <li key={id}>
+                    <span>{path}</span>
+                    <b>{amount}</b>
+                    <em>{time}</em>
+                    <em>{id}</em>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          </div>
+        </div>
+        <div className="provides">
+          <h2>What Verico provides</h2>
+          <ul>
+            {POINTS.map(([title, text]) => (
+              <li key={title}>
+                <strong>{title}</strong>
+                <span>{text}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
       </section>
     </main>
-  );
-}
-
-function Path() {
-  return (
-    <svg className="path" viewBox="0 0 640 120" role="img" aria-label="Four accounts joined by payments">
-      <line x1="70" y1="60" x2="210" y2="36" />
-      <line x1="210" y1="36" x2="360" y2="78" />
-      <line x1="360" y1="78" x2="520" y2="48" />
-      <line x1="520" y1="48" x2="210" y2="36" />
-      <circle cx="70" cy="60" r="18" />
-      <circle cx="210" cy="36" r="18" />
-      <circle cx="360" cy="78" r="18" />
-      <circle cx="520" cy="48" r="18" />
-    </svg>
+    </div>
+    </div>
+    </div>
   );
 }

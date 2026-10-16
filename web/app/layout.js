@@ -1,15 +1,17 @@
-import { Familjen_Grotesk, Fraunces } from "next/font/google";
+import { Barlow_Condensed, Source_Sans_3 } from "next/font/google";
 
 import { SiteHeader } from "./site-header";
 import "./globals.css";
 
-const display = Fraunces({
+const display = Barlow_Condensed({
   subsets: ["latin"],
+  weight: ["500", "600", "700"],
   variable: "--font-display",
 });
 
-const text = Familjen_Grotesk({
+const text = Source_Sans_3({
   subsets: ["latin"],
+  weight: ["400", "600"],
   variable: "--font-text",
 });
 
