@@ -1,0 +1,80 @@
+---
+pid: 31039
+cwd: "/Users/jonathanshiju/Documents/Projects/AMLBot"
+command: "docker exec falkordb redis-cli GRAPH.DELETE aml:loops; cd /Users/jonathanshiju/Documents/Projects/AMLBot && .venv/bin/python scripts/detect_loops.py --topic transactions --idle-exit 30 2>&1"
+title: "Rebuild loop graph with unpadded account ids"
+status: succeeded
+started_at: 2026-10-15T14:39:50.596Z
+running_for_ms: 848690   
+---
+OK
+2026-10-15 20:09:57,018 processed=163,679 cycles=0 open_leaves=43,281 hubs=3 event_time=2022/09/01 00:15
+2026-10-15 20:10:01,720 processed=561,055 cycles=1 open_leaves=253,451 hubs=15 event_time=2022/09/01 07:28
+2026-10-15 20:10:06,786 processed=823,978 cycles=8 open_leaves=479,428 hubs=15 event_time=2022/09/01 15:20
+2026-10-15 20:10:11,471 processed=1,036,780 cycles=19 open_leaves=699,264 hubs=15 event_time=2022/09/01 21:41
+2026-10-15 20:10:16,602 processed=1,245,038 cycles=34 open_leaves=1,010,236 hubs=15 event_time=2022/09/02 03:44
+2026-10-15 20:10:22,168 processed=1,449,885 cycles=57 open_leaves=1,432,368 hubs=15 event_time=2022/09/02 10:22
+2026-10-15 20:10:27,632 processed=1,655,908 cycles=81 open_leaves=1,942,577 hubs=15 event_time=2022/09/02 17:03
+2026-10-15 20:10:34,410 processed=1,861,737 cycles=125 open_leaves=2,541,763 hubs=15 event_time=2022/09/02 23:45
+2026-10-15 20:10:43,160 processed=2,040,354 cycles=264 open_leaves=3,152,969 hubs=15 event_time=2022/09/03 19:33
+2026-10-15 20:10:45,643 processed=2,159,849 cycles=394 open_leaves=3,520,745 hubs=15 event_time=2022/09/04 08:33
+2026-10-15 20:10:50,353 processed=2,217,075 cycles=468 open_leaves=3,704,725 hubs=15 event_time=2022/09/04 15:39
+2026-10-15 20:10:55,659 processed=2,342,260 cycles=599 open_leaves=4,092,294 hubs=15 event_time=2022/09/05 02:13
+2026-10-15 20:11:02,621 processed=2,407,236 cycles=662 open_leaves=4,319,058 hubs=15 event_time=2022/09/05 05:32
+2026-10-15 20:11:10,597 processed=2,537,693 cycles=778 open_leaves=4,802,625 hubs=15 event_time=2022/09/05 12:12
+2026-10-15 20:11:16,577 processed=2,668,620 cycles=956 open_leaves=5,312,007 hubs=15 event_time=2022/09/05 18:57
+2026-10-15 20:11:27,678 processed=2,733,900 cycles=1,006 open_leaves=5,582,479 hubs=15 event_time=2022/09/05 22:19
+2026-10-15 20:11:40,323 processed=2,868,420 cycles=1,111 open_leaves=5,983,202 hubs=15 event_time=2022/09/06 04:27
+2026-10-15 20:11:45,553 processed=2,994,087 cycles=1,202 open_leaves=6,352,308 hubs=15 event_time=2022/09/06 10:55
+2026-10-15 20:11:58,061 processed=3,064,207 cycles=1,282 open_leaves=6,558,965 hubs=15 event_time=2022/09/06 14:30
+2026-10-15 20:12:01,607 processed=3,129,099 cycles=1,335 open_leaves=6,760,064 hubs=15 event_time=2022/09/06 17:50
+2026-10-15 20:12:11,947 processed=3,194,175 cycles=1,397 open_leaves=6,969,748 hubs=15 event_time=2022/09/06 21:10
+2026-10-15 20:12:16,711 processed=3,260,127 cycles=1,452 open_leaves=7,158,505 hubs=15 event_time=2022/09/07 00:14
+2026-10-15 20:12:27,897 processed=3,391,909 cycles=1,736 open_leaves=7,419,043 hubs=15 event_time=2022/09/07 06:34
+2026-10-15 20:12:35,283 processed=3,522,698 cycles=1,912 open_leaves=7,696,585 hubs=15 event_time=2022/09/07 13:17
+2026-10-15 20:12:46,010 processed=3,588,281 cycles=1,975 open_leaves=7,840,171 hubs=15 event_time=2022/09/07 16:37
+2026-10-15 20:12:52,311 processed=3,653,883 cycles=2,121 open_leaves=7,981,240 hubs=15 event_time=2022/09/07 19:59
+2026-10-15 20:13:06,252 processed=3,786,887 cycles=2,208 open_leaves=8,229,009 hubs=15 event_time=2022/09/08 02:06
+2026-10-15 20:13:06,352 processed=3,786,887 cycles=2,208 open_leaves=8,229,009 hubs=15 event_time=2022/09/08 02:06
+2026-10-15 20:13:14,392 processed=3,852,606 cycles=2,276 open_leaves=8,330,831 hubs=15 event_time=2022/09/08 05:29
+2026-10-15 20:13:19,111 processed=3,916,844 cycles=2,335 open_leaves=8,430,118 hubs=15 event_time=2022/09/08 08:47
+2026-10-15 20:13:24,531 processed=3,982,769 cycles=2,413 open_leaves=8,533,591 hubs=15 event_time=2022/09/08 12:09
+2026-10-15 20:13:39,725 processed=3,982,769 cycles=2,413 open_leaves=8,533,591 hubs=15 event_time=2022/09/08 12:09
+2026-10-15 20:13:47,322 processed=4,048,024 cycles=2,512 open_leaves=8,640,564 hubs=15 event_time=2022/09/08 15:28
+2026-10-15 20:13:53,785 processed=4,114,019 cycles=2,575 open_leaves=8,752,339 hubs=15 event_time=2022/09/08 18:50
+2026-10-15 20:13:58,682 processed=4,178,868 cycles=2,671 open_leaves=8,861,634 hubs=15 event_time=2022/09/08 22:10
+2026-10-15 20:14:20,478 processed=4,247,720 cycles=2,717 open_leaves=8,963,156 hubs=15 event_time=2022/09/09 00:42
+2026-10-15 20:14:26,189 processed=4,307,515 cycles=2,751 open_leaves=9,054,573 hubs=15 event_time=2022/09/09 02:56
+2026-10-15 20:14:34,866 processed=4,384,200 cycles=2,814 open_leaves=9,174,700 hubs=15 event_time=2022/09/09 05:49
+2026-10-15 20:15:27,597 processed=4,450,514 cycles=2,867 open_leaves=9,277,942 hubs=15 event_time=2022/09/09 08:18
+2026-10-15 20:15:28,174 processed=4,450,514 cycles=2,867 open_leaves=9,277,942 hubs=15 event_time=2022/09/09 08:18
+2026-10-15 20:15:36,217 processed=4,515,060 cycles=2,927 open_leaves=9,379,340 hubs=15 event_time=2022/09/09 10:42
+2026-10-15 20:15:44,821 processed=4,562,423 cycles=2,965 open_leaves=9,456,542 hubs=15 event_time=2022/09/09 12:29
+2026-10-15 20:15:48,496 processed=4,583,642 cycles=2,984 open_leaves=9,492,748 hubs=15 event_time=2022/09/09 13:17
+2026-10-15 20:16:00,518 processed=4,650,881 cycles=3,174 open_leaves=9,609,946 hubs=15 event_time=2022/09/09 15:49
+2026-10-15 20:16:06,776 processed=4,696,022 cycles=3,211 open_leaves=9,688,848 hubs=15 event_time=2022/09/09 17:30
+2026-10-15 20:18:05,023 processed=4,719,688 cycles=3,233 open_leaves=9,730,454 hubs=15 event_time=2022/09/09 18:22
+2026-10-15 20:18:32,144 processed=4,762,114 cycles=3,392 open_leaves=9,806,552 hubs=15 event_time=2022/09/09 19:57
+2026-10-15 20:18:48,653 processed=4,786,557 cycles=3,397 open_leaves=9,852,061 hubs=15 event_time=2022/09/09 20:53
+2026-10-15 20:18:53,685 processed=4,794,269 cycles=3,401 open_leaves=9,866,165 hubs=15 event_time=2022/09/09 21:11
+2026-10-15 20:19:28,339 processed=4,829,525 cycles=3,431 open_leaves=9,931,054 hubs=15 event_time=2022/09/09 22:31
+2026-10-15 20:19:34,774 processed=4,854,075 cycles=3,447 open_leaves=9,977,867 hubs=15 event_time=2022/09/09 23:27
+2026-10-15 20:19:40,910 processed=4,892,208 cycles=3,483 open_leaves=10,027,935 hubs=15 event_time=2022/09/10 01:05
+2026-10-15 20:19:46,063 processed=4,918,737 cycles=3,538 open_leaves=10,054,712 hubs=15 event_time=2022/09/10 04:19
+2026-10-15 20:19:50,775 processed=4,942,841 cycles=3,600 open_leaves=10,081,759 hubs=15 event_time=2022/09/10 07:16
+2026-10-15 20:19:55,960 processed=4,974,084 cycles=3,691 open_leaves=10,117,434 hubs=15 event_time=2022/09/10 11:05
+2026-10-15 20:20:00,596 processed=4,995,838 cycles=3,739 open_leaves=10,142,732 hubs=15 event_time=2022/09/10 13:49
+2026-10-15 20:21:27,082 processed=5,046,240 cycles=4,174 open_leaves=10,199,182 hubs=15 event_time=2022/09/10 20:09
+2026-10-15 20:21:32,453 processed=5,078,282 cycles=4,817 open_leaves=10,244,159 hubs=15 event_time=2022/09/16 06:00
+2026-10-15 20:21:32,977 processed=5,078,282 cycles=4,817 open_leaves=10,244,159 hubs=15 event_time=2022/09/16 06:00
+2026-10-15 20:21:37,753 processed=5,078,282 cycles=4,817 open_leaves=10,244,159 hubs=15 event_time=2022/09/16 06:00
+2026-10-15 20:21:42,548 processed=5,078,282 cycles=4,817 open_leaves=10,244,159 hubs=15 event_time=2022/09/16 06:00
+2026-10-15 20:21:47,328 processed=5,078,282 cycles=4,817 open_leaves=10,244,159 hubs=15 event_time=2022/09/16 06:00
+2026-10-15 20:21:52,111 processed=5,078,282 cycles=4,817 open_leaves=10,244,159 hubs=15 event_time=2022/09/16 06:00
+2026-10-15 20:21:56,459 Done in 767s: {'transactions': 5078345, 'leaves_spawned': 19122139, 'hubs': 15, 'leaves_terminated': 134197, 'cycles': 4863, 'leaves_evicted': 11810135, 'budget_exhausted': 1100055}
+
+---
+exit_code: 0
+elapsed_ms: 848690
+ended_at: 2026-10-15T14:53:11.647Z
+---

@@ -1,0 +1,39 @@
+---
+pid: 25378
+cwd: "/Users/jonathanshiju/Documents/Projects/AMLBot"
+command: "cd /Users/jonathanshiju/Documents/Projects/AMLBot && gemini --skip-trust mcp list 2>&1"
+title: "List Gemini MCP servers with folder trusted for this run"
+status: aborted  
+started_at: 2026-10-15T04:27:13.040Z
+running_for_ms: 91606    
+---
+=========================================
+This is an unexpected error. Please file a bug report using the /bug tool.
+CRITICAL: Unhandled Promise Rejection!
+=========================================
+Reason: Error: EPERM: operation not permitted, open '/Users/jonathanshiju/.gemini/oauth_creds.json'
+Stack trace:
+Error: EPERM: operation not permitted, open '/Users/jonathanshiju/.gemini/oauth_creds.json'
+    at async open (node:internal/fs/promises:639:25)
+    at async Object.writeFile (node:internal/fs/promises:1219:14)
+    at async cacheCredentials (file:///opt/homebrew/lib/node_modules/@google/gemini-cli/bundle/chunk-VLV2BYPM.js:270081:3)
+    at async _OAuth2Client.<anonymous> (file:///opt/homebrew/lib/node_modules/@google/gemini-cli/bundle/chunk-VLV2BYPM.js:269679:7)
+Error authenticating: IneligibleTierError: This client is no longer supported for Gemini Code Assist for individuals. To continue using Gemini, please migrate to the Antigravity suite of products: https://antigravity.google
+    at throwIneligibleOrProjectIdError (file:///opt/homebrew/lib/node_modules/@google/gemini-cli/bundle/chunk-VLV2BYPM.js:300912:11)
+    at _doSetupUser (file:///opt/homebrew/lib/node_modules/@google/gemini-cli/bundle/chunk-VLV2BYPM.js:300901:5)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  ineligibleTiers: [
+    {
+      reasonCode: 'UNSUPPORTED_CLIENT',
+      reasonMessage: 'This client is no longer supported for Gemini Code Assist for individuals. To continue using Gemini, please migrate to the Antigravity suite of products: https://antigravity.google',
+      tierId: 'free-tier',
+      tierName: 'Gemini Code Assist for individuals'
+    }
+  ]
+}
+
+---
+exit_code: unknown
+elapsed_ms: 91606
+ended_at: 2026-10-15T04:28:39.504Z
+---

@@ -1,0 +1,21 @@
+---
+pid: 18028
+cwd: "/Users/jonathanshiju/Documents/Projects/AMLBot"
+command: "cd /Users/jonathanshiju/Documents/Projects/AMLBot && .venv/bin/python scripts/ingest_graph.py --topic transactions --idle-exit 90 2>&1"
+title: "Restart graph ingestor"
+status: failed   
+started_at: 2026-10-15T02:00:25.123Z
+running_for_ms: 40716    
+---
+2026-10-15 07:30:34,581 written=7,500 dead=0 batch=1250 last_write=1.76s watermark=-
+2026-10-15 07:30:38,269 written=18,750 dead=0 batch=1250 last_write=0.39s watermark=-
+2026-10-15 07:30:43,503 written=35,000 dead=0 batch=625 last_write=0.50s watermark=-
+2026-10-15 07:30:50,376 written=46,014 dead=0 batch=820 last_write=0.81s watermark=-
+2026-10-15 07:30:57,233 written=55,974 dead=0 batch=1665 last_write=2.94s watermark=-
+2026-10-15 07:31:02,066 written=63,469 dead=0 batch=833 last_write=0.81s watermark=-
+
+---
+exit_code: unknown
+elapsed_ms: 40716
+ended_at: 2026-10-15T02:01:03.554Z
+---
