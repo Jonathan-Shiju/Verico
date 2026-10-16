@@ -1,0 +1,45 @@
+{
+  "graphs": [
+    {
+      "accounts": [
+        {
+          "id": "152627:813CC7711",
+          "entity_id": "800FE9980",
+          "entity_name": "Country #1"
+        },
+        {
+          "id": "225:813CC7761",
+          "entity_id": "800FE9980",
+          "entity_name": "Country #1"
+        }
+      ],
+      "transfers": [
+        {
+          "txn_id": 393953,
+          "src": "152627:813CC7711",
+          "dst": "225:813CC7761",
+          "amount_paid": 0.307053,
+          "payment_currency": "Bitcoin",
+          "amount_received": 0.307053,
+          "receiving_currency": "Bitcoin",
+          "payment_format": "Bitcoin",
+          "time": "2022/09/01 02:11",
+          "window": "aml:txn:20220828T0000"
+        },
+        {
+          "txn_id": 477907,
+          "src": "225:813CC7761",
+          "dst": "152627:813CC7711",
+          "amount_paid": 0.381326,
+          "payment_currency": "Bitcoin",
+          "amount_received": 0.381326,
+          "receiving_currency": "Bitcoin",
+          "payment_format": "Bitcoin",
+          "time": "2022/09/01 04:32",
+          "window": "aml:txn:20220828T0000"
+        }
+      ]
+    }
+  ],
+  "missing": []
+}

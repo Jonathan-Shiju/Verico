@@ -1,0 +1,38 @@
+{
+  "columns": [
+    "key",
+    "position",
+    "length",
+    "start_ts",
+    "end_ts",
+    "amount_out",
+    "amount_back",
+    "tree_root",
+    "closed_at_root",
+    "open",
+    "txn_ids"
+  ],
+  "rows": [
+    {
+      "key": "393953,477907",
+      "position": 0,
+      "length": 2,
+      "start_ts": 1661998260,
+      "start_time": "2022/09/01 02:11",
+      "end_ts": 1662006720,
+      "end_time": "2022/09/01 04:32",
+      "amount_out": 0.307053,
+      "amount_back": 0.381326,
+      "tree_root": "152627:813CC7711",
+      "closed_at_root": true,
+      "open": null,
+      "txn_ids": [
+        393953,
+        477907
+      ]
+    }
+  ],
+  "truncated": false,
+  "account": "152627:813CC7711",
+  "graph": "aml:loops"
+}

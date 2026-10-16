@@ -1,0 +1,16 @@
+{
+  "columns": [
+    "kind",
+    "window",
+    "focal_txn",
+    "part_txns",
+    "amount",
+    "part_sum",
+    "currency",
+    "ts"
+  ],
+  "rows": [],
+  "truncated": false,
+  "account": "152627:813CC7711",
+  "graph": "aml:cases"
+}

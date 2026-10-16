@@ -1,0 +1,44 @@
+{
+  "watermark": "2022/09/18 16:18",
+  "windows": [
+    {
+      "graph": "aml:txn:20220828T0000",
+      "start": "2022/08/28 00:00",
+      "end": "2022/09/05 00:00",
+      "status": "closed"
+    },
+    {
+      "graph": "aml:txn:20220901T0000",
+      "start": "2022/09/01 00:00",
+      "end": "2022/09/09 00:00",
+      "status": "closed"
+    },
+    {
+      "graph": "aml:txn:20220905T0000",
+      "start": "2022/09/05 00:00",
+      "end": "2022/09/13 00:00",
+      "status": "closed"
+    },
+    {
+      "graph": "aml:txn:20220909T0000",
+      "start": "2022/09/09 00:00",
+      "end": "2022/09/17 00:00",
+      "status": "closed"
+    },
+    {
+      "graph": "aml:txn:20220913T0000",
+      "start": "2022/09/13 00:00",
+      "end": "2022/09/21 00:00",
+      "status": "open"
+    },
+    {
+      "graph": "aml:txn:20220917T0000",
+      "start": "2022/09/17 00:00",
+      "end": "2022/09/25 00:00",
+      "status": "open"
+    }
+  ],
+  "loop_graph": "aml:loops",
+  "case_graph": "aml:cases",
+  "account_id": "{bank}:{account}, bank written without leading zeros"
+}

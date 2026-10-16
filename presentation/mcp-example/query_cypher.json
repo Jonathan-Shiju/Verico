@@ -1,0 +1,36 @@
+{
+  "columns": [
+    "dst",
+    "txn_id",
+    "amount_paid"
+  ],
+  "rows": [
+    {
+      "dst": "255063:81430AE01",
+      "txn_id": 344132,
+      "amount_paid": 0.006808
+    },
+    {
+      "dst": "255063:81430AE01",
+      "txn_id": 344133,
+      "amount_paid": 0.004911
+    },
+    {
+      "dst": "255063:81430AE01",
+      "txn_id": 1608809,
+      "amount_paid": 0.006808
+    },
+    {
+      "dst": "255063:81430AE01",
+      "txn_id": 1608810,
+      "amount_paid": 0.004911
+    },
+    {
+      "dst": "255063:81430AE01",
+      "txn_id": 2049006,
+      "amount_paid": 0.004911
+    }
+  ],
+  "truncated": false,
+  "graph": "aml:txn:20220828T0000"
+}

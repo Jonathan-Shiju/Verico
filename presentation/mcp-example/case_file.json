@@ -1,0 +1,98 @@
+{
+  "lead": "393953,477907",
+  "kind": "loop",
+  "open": false,
+  "closed_at_root": true,
+  "tree_root": "152627:813CC7711",
+  "length": 2,
+  "start_time": "2022/09/01 02:11",
+  "end_time": "2022/09/01 04:32",
+  "amount_out": 0.307053,
+  "amount_back": 0.381326,
+  "accounts": [
+    "152627:813CC7711",
+    "225:813CC7761"
+  ],
+  "txn_ids": [
+    393953,
+    477907
+  ],
+  "windows": [
+    "aml:txn:20220828T0000",
+    "aml:txn:20220901T0000"
+  ],
+  "entities": {
+    "152627:813CC7711": {
+      "entity_id": "800FE9980",
+      "entity_name": "Country #1",
+      "accounts": 6677,
+      "other_accounts": [
+        "126:814103F31",
+        "225:8137070F1",
+        "154148:8143D12F1",
+        "152416:81409B1F1",
+        "124:813D03C71",
+        "255063:814322911",
+        "220:813A86CD1",
+        "152416:81371B341",
+        "152627:813C21A31",
+        "354075:813CB89C1",
+        "152627:814921DF1",
+        "354656:81464B521",
+        "124:814583BC1",
+        "126:814603AC1",
+        "124:813A83BE1"
+      ]
+    },
+    "225:813CC7761": {
+      "entity_id": "800FE9980",
+      "entity_name": "Country #1",
+      "accounts": 6677,
+      "other_accounts": [
+        "126:814103F31",
+        "225:8137070F1",
+        "154148:8143D12F1",
+        "152416:81409B1F1",
+        "124:813D03C71",
+        "255063:814322911",
+        "220:813A86CD1",
+        "152416:81371B341",
+        "152627:813C21A31",
+        "354075:813CB89C1",
+        "152627:814921DF1",
+        "354656:81464B521",
+        "124:814583BC1",
+        "126:814603AC1",
+        "124:813A83BE1"
+      ]
+    }
+  },
+  "transfers": [
+    {
+      "src": "152627:813CC7711",
+      "dst": "225:813CC7761",
+      "txn_id": 393953,
+      "ts": 1661998260,
+      "time": "2022/09/01 02:11",
+      "amount_paid": 0.307053,
+      "payment_currency": "Bitcoin",
+      "amount_received": 0.307053,
+      "receiving_currency": "Bitcoin",
+      "payment_format": "Bitcoin",
+      "window": "aml:txn:20220828T0000"
+    },
+    {
+      "src": "225:813CC7761",
+      "dst": "152627:813CC7711",
+      "txn_id": 477907,
+      "ts": 1662006720,
+      "time": "2022/09/01 04:32",
+      "amount_paid": 0.381326,
+      "payment_currency": "Bitcoin",
+      "amount_received": 0.381326,
+      "receiving_currency": "Bitcoin",
+      "payment_format": "Bitcoin",
+      "window": "aml:txn:20220828T0000"
+    }
+  ]
+}

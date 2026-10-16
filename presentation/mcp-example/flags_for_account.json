@@ -1,0 +1,16 @@
+{
+  "columns": [
+    "rule",
+    "window",
+    "parties",
+    "txn_id",
+    "amount",
+    "inflow_sum",
+    "inflow_txns",
+    "ts"
+  ],
+  "rows": [],
+  "truncated": false,
+  "account": "152627:813CC7711",
+  "graph": "aml:flags"
+}
