@@ -13,6 +13,7 @@ export function Workspace() {
   const [book, setBook] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [selected, setSelected] = useState("");
+  const [suggestions, setSuggestions] = useState([]);
 
   useEffect(() => {
     if (!graph) {
@@ -26,11 +27,16 @@ export function Workspace() {
 
   const selectedEdge = graph?.edges.find((edge) => edge.id === selected) || null;
 
-  async function send(event) {
+  function send(event) {
     event.preventDefault();
-    const message = draft.trim();
+    deliver(draft);
+  }
+
+  async function deliver(text) {
+    const message = text.trim();
     if (!message || busy) return;
     setDraft("");
+    setSuggestions([]);
     setBusy(true);
     setMessages((current) => [
       ...current,
@@ -77,6 +83,7 @@ export function Workspace() {
       if (event.session_id) setSessionId(event.session_id);
       setGraph(event.graph);
       setBook(Boolean(event.book));
+      setSuggestions(Array.isArray(event.prompts) ? event.prompts.filter(Boolean) : []);
     }
     if (event.type === "error") replaceAgent(event.error || "The sample did not answer.");
   }
@@ -106,6 +113,7 @@ export function Workspace() {
     setBook(false);
     setExpanded(false);
     setSelected("");
+    setSuggestions([]);
   }
 
   return (
@@ -128,17 +136,48 @@ export function Workspace() {
         </header>
         <div className="thread">
           {messages.length === 0 ? (
-            <p className="empty-note">
-              Start a conversation. It reads this sample only, and it is gone when you leave the page.
-            </p>
-          ) : (
-            messages.map((item, index) => (
-              <p key={index} className={`bubble ${item.role}`}>
-                {item.text}
+            <>
+              <p className="empty-note">
+                Start a conversation. It reads this sample only, and it is gone when you leave the page.
               </p>
-            ))
+              <button
+                type="button"
+                className="bubble starter"
+                onClick={() => deliver("List the leads")}
+                disabled={busy}
+              >
+                List the leads
+              </button>
+            </>
+          ) : (
+            messages.map((item, index) =>
+              item.role === "agent" ? (
+                <div key={index} className="bubble agent">
+                  <Reply text={item.text} />
+                </div>
+              ) : (
+                <p key={index} className={`bubble ${item.role}`}>
+                  {item.text}
+                </p>
+              ),
+            )
           )}
         </div>
+        {suggestions.length ? (
+          <div className="prompts">
+            {suggestions.map((prompt) => (
+              <button
+                key={prompt}
+                type="button"
+                className="bubble starter"
+                onClick={() => deliver(prompt)}
+                disabled={busy}
+              >
+                {prompt}
+              </button>
+            ))}
+          </div>
+        ) : null}
         <form className="composer" onSubmit={send}>
           <input
             value={draft}
@@ -228,7 +267,8 @@ function GraphColumn({ graph, expanded, selected, selectedEdge, onExpand, onSele
       {expanded && selectedEdge ? (
         <div className="detail">
           <p className="who">
-            {selectedEdge.src_name} paid {selectedEdge.dst_name}.
+            <Marked graph={graph} id={selectedEdge.from} name={selectedEdge.src_name} /> paid{" "}
+            <Marked graph={graph} id={selectedEdge.to} name={selectedEdge.dst_name} />.
           </p>
           <p>
             {money(selectedEdge)}
@@ -241,9 +281,79 @@ function GraphColumn({ graph, expanded, selected, selectedEdge, onExpand, onSele
   );
 }
 
+function Reply({ text }) {
+  return blocks(text).map((block, index) => {
+    if (block.type === "h") {
+      return <h3 key={index}>{inline(block.text)}</h3>;
+    }
+    if (block.type === "ul") {
+      return (
+        <ul key={index}>
+          {block.items.map((item, itemIndex) => (
+            <li key={itemIndex}>{inline(item)}</li>
+          ))}
+        </ul>
+      );
+    }
+    return <p key={index}>{inline(block.text)}</p>;
+  });
+}
+
+function blocks(text) {
+  const found = [];
+  let list = null;
+  function closeList() {
+    if (!list) return;
+    found.push({ type: "ul", items: list });
+    list = null;
+  }
+  for (const line of String(text || "").split("\n")) {
+    const heading = /^(#{1,3})\s+(.*)$/.exec(line);
+    if (heading) {
+      closeList();
+      found.push({ type: "h", text: heading[2] });
+      continue;
+    }
+    const item = /^[-*]\s+(.*)$/.exec(line);
+    if (item) {
+      list = list || [];
+      list.push(item[1]);
+      continue;
+    }
+    if (!line.trim()) {
+      closeList();
+      continue;
+    }
+    closeList();
+    found.push({ type: "p", text: line });
+  }
+  closeList();
+  return found;
+}
+
+function inline(text) {
+  return String(text)
+    .split(/(\*\*[^*]+\*\*)/g)
+    .map((part, index) =>
+      part.startsWith("**") && part.endsWith("**") ? (
+        <strong key={index}>{part.slice(2, -2)}</strong>
+      ) : (
+        part
+      ),
+    );
+}
+
+function Marked({ graph, id, name }) {
+  const mark = graph.nodes.find((node) => node.id === id)?.mark;
+  if (!mark) return name;
+  return <span className={mark}>{name}</span>;
+}
+
 function partyClass(node, edge) {
   const marks = ["party"];
   if (node.role === "subject") marks.push("subject");
+  if (node.mark === "flagged") marks.push("flagged");
+  else if (node.mark === "lead") marks.push("lead");
   if (edge && node.id === edge.from) marks.push("send");
   if (edge && node.id === edge.to) marks.push("receive");
   return marks.join(" ");

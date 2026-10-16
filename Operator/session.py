@@ -22,6 +22,7 @@ from Operator.ConversationLog import ConversationLog, calls_from_messages, cited
 from Operator.workbook import refresh_workbook, workbook_tool
 
 ROOT = Path(__file__).resolve().parent.parent
+REPLY = (Path(__file__).resolve().parent / "reply.md").read_text()
 load_dotenv(ROOT / ".env")
 SERVER = ROOT / "GraphRead" / "server.py"
 PYTHON = ROOT / ".venv" / "bin" / "python"
@@ -49,10 +50,19 @@ REQUIRED = (
 
 SYSTEM = """You assist one compliance officer reviewing payments. You do not watch the payment stream. This is one conversation: a later question refers to the payments already read. "This" and "that lead" mean the payments just discussed. Do not ask the officer to repeat an account, a party, or a payment id.
 
-Write the reply as plain sentences a reviewer can read aloud. No headings, no bold, no backticks, no bullet lists. Speak only in the officer's words. A loop is money that left an account and later came back; you may say loop. Several payments that add up to one payment, or one payment divided into several, must be described that way. Do not say residue, pooled, split, walk, step, depth, window, graph, tool, branch, or chain. Do not say that a search ended, that nothing was found within a depth, or that a payment is outgoing or incoming. Say who sent the money, who received it, the amount, the time, and how it was paid. If no later payment left the account that received the money, say that the money stopped there.
+When the reply shows payments, call flags_for_account for each account in those payments and write the section Is there any suspicious thing. When the reply is one account or one party, call flags_for_account for that account and write Should we be careful of this account. A mark is many accounts sending money to this one, this one sending money to many accounts, or one payment that left matching the payments that arrived. Say it that way. Do not say the mark's stored name. A mark is not a lead and not a finding of fraud. If the call returns no mark, say there is no mark. Do not invent one.
 
-Use the tools to read, then answer in that voice. The tool names below are for you only and must not appear in the reply. Leads are opened with case_file. An account summary uses summarize. Later payments from one payment use walk_transaction. How a set of payments connects uses explain_transactions. When they name one lead, open that lead. Do not also list every other lead unless they ask. When the officer asks what you think, give that reading from the payments already in the conversation. When they say keep or dismiss, call record_decision with the payment ids and accounts already read. Do not ask them to supply those ids. keep means a person should look at the payments. dismiss means the payments read as ordinary. The reason must mention each payment id you record. When they ask for more leads, call list_leads with skip past the ones already shown, name a few in sentences, and say that more exist. When they ask to flag an account, or to open the accounts that dealt with it, call open_counterparty_leads for that account. That writes one lead for each of those accounts, separate from a loop and from payments that add up. Open one of those leads with case_file when they want the payments between the two accounts, and describe those payments in plain sentences. When they ask for a workbook, call open_workbook with the lead already open. If they also ask to keep or dismiss, call record_decision for that lead first, then open_workbook. Do not call investigate_lead.
-"""
+Use the tools to read, then answer in that voice. The tool names below are for you only and must not appear in the reply. Leads are opened with case_file. An account summary uses summarize. Later payments from one payment use walk_transaction. How a set of payments connects uses explain_transactions. When they name one lead, open that lead. Do not also list every other lead unless they ask. When the officer asks what you think, give that reading from the payments already in the conversation. When they say keep the lead, or keep or dismiss, call record_decision with the payment ids and accounts already read. Do not ask them to supply those ids. keep means a person should look at the payments. dismiss means the payments read as ordinary. The reason must mention each payment id you record. When they ask to list leads or for more leads, call list_leads with limit 3 and, for a later page, skip past the ones already shown. Describe at most three leads in the markdown shape, and say that more exist. Do not recite every account the tool returned. When they ask to flag an account, or to open the accounts that dealt with it, call open_counterparty_leads for that account. That writes one lead for each of those accounts, separate from a loop and from payments that add up. The reply uses the Flagged shape. Name the flagged party and every account the tool returned, with the payments between them. Do not call any of them the first lead, the second lead, or another account. Open one of those leads with case_file when they want the payments between the two accounts, and describe those payments in the markdown shape. A case book is the workbook. When they ask to open the case book, or for a workbook, call open_workbook with the lead already open. If the lead has not been kept, call record_decision for that lead first, then open_workbook. Do not call investigate_lead.
+
+After the tools, the final message is only this JSON object. Do not write the markdown before it. No code fence. The reply field is the markdown. It does not ask the officer to choose or to name an account. The two question headings in the shape are allowed.
+{"reply":"<markdown>","prompts":"<three commands the officer would type next, separated by a comma and a space>"}
+prompts are commands in the officer's voice, not questions back to them. Do not start one with would you, could you, or can you. Do not ask them to clarify or to name an account. Separate the commands with a comma and a space. Do not put a comma inside a command. Never put a payment id or an account id in a command. Name a lead as the first lead, the second lead, or a different lead.
+When the reply just flagged an account, each command opens the payments with one named party from that reply. Do not call those the first lead.
+When no lead is open, each command opens one lead from this reply, or looks at a different lead.
+When a lead is open and has not been kept, the commands begin Keep the lead, Open the case book, and the third looks at the accounts in the reply or flags one of those accounts and the accounts that dealt with it.
+When the lead is kept and the case book is not open, the first command is Open the case book, then look at those accounts or flag one account and the accounts that dealt with it.
+Do not repeat the command the officer just sent.
+""" + REPLY
 
 
 HF_ROUTER = "https://router.huggingface.co/v1"
@@ -203,12 +213,25 @@ async def investigate(
     if agent is None:
         agent = open_agent(tools, model)
     message = question or f"Open the payments for {lead}."
+    tap = _ReplyTap()
+
+    async def forward(piece: str) -> None:
+        visible = tap.push(piece)
+        if not visible:
+            return
+        if emit is not None:
+            sent = emit(visible)
+            if hasattr(sent, "__await__"):
+                await sent
+        elif stream:
+            print(visible, end="", flush=True)
+
     messages = await _invoke(
         agent,
         message,
         session_id or "operator",
         stream=stream,
-        emit=emit,
+        emit=forward if stream else None,
     )
     history = [_message(item) for item in messages]
     turn = _latest_turn(history)
@@ -219,7 +242,8 @@ async def investigate(
         if recorded
         else {}
     )
-    answer = _plain(_answer(turn))
+    answer, prompts = _spoken(_answer(turn))
+    answer = _reply_text(answer)
     _write("transcript", {"lead": recorded, "messages": history})
     _write("decision", stored)
     if log is not None and session_id:
@@ -240,6 +264,7 @@ async def investigate(
         "decision": stored.get("decision"),
         "reason": stored.get("reason"),
         "answer": answer,
+        "prompts": prompts,
         "messages": turn,
     }
 
@@ -313,11 +338,143 @@ def _recorded_lead(messages: list[dict]) -> str:
     return ""
 
 
-def _plain(text: str) -> str:
-    text = re.sub(r"(?m)^#{1,6}\s*", "", text)
-    text = text.replace("**", "").replace("__", "").replace("`", "")
-    text = re.sub(r"(?m)^\s*[-*]\s+", "", text)
-    text = re.sub(r"(?m)^---+\s*$", "", text)
+class _ReplyTap:
+    """Show only the reply field while a JSON answer is still being written."""
+
+    def __init__(self) -> None:
+        self.buf = ""
+        self.shown = ""
+
+    def push(self, piece: str) -> str:
+        self.buf += piece
+        reply = _partial_reply(self.buf)
+        if reply is None:
+            return ""
+        if reply.startswith(self.shown):
+            fresh = reply[len(self.shown) :]
+            self.shown = reply
+            return fresh
+        self.shown = reply
+        return reply
+
+
+def _partial_reply(buf: str) -> str | None:
+    match = re.search(r'"reply"\s*:\s*"', buf)
+    if not match:
+        return None
+    index = match.end()
+    chars: list[str] = []
+    while index < len(buf):
+        char = buf[index]
+        if char == "\\":
+            if index + 1 >= len(buf):
+                break
+            nxt = buf[index + 1]
+            if nxt == "u":
+                if index + 6 > len(buf):
+                    break
+                try:
+                    chars.append(chr(int(buf[index + 2 : index + 6], 16)))
+                except ValueError:
+                    break
+                index += 6
+                continue
+            chars.append({"n": "\n", "t": "\t", "r": "\r", '"': '"', "\\": "\\"}.get(nxt, nxt))
+            index += 2
+            continue
+        if char == '"':
+            break
+        chars.append(char)
+        index += 1
+    return "".join(chars)
+
+
+def _spoken(raw: str) -> tuple[str, list[str]]:
+    """Split the final message into the spoken reply and the officer's next commands."""
+    text = raw.strip()
+    fenced = re.search(r"```(?:json)?\s*(\{.*\})\s*```", text, re.S)
+    if fenced:
+        text = fenced.group(1).strip()
+    start, end = text.find("{"), text.rfind("}")
+    payload = None
+    if start >= 0 and end > start:
+        try:
+            payload = json.loads(text[start : end + 1])
+        except json.JSONDecodeError:
+            payload = None
+    if isinstance(payload, dict) and "reply" in payload:
+        return str(payload.get("reply") or "").strip(), _prompt_list(payload.get("prompts"))
+    reply = _json_string(text, "reply")
+    prompts = _json_string(text, "prompts")
+    if reply is not None:
+        return reply, _prompt_list(prompts or "")
+    return text, []
+
+
+def _json_string(text: str, key: str) -> str | None:
+    match = re.search(rf'"{key}"\s*:\s*"((?:\\.|[^"\\])*)"', text, re.S)
+    if not match:
+        return None
+    try:
+        return json.loads(f'"{match.group(1)}"')
+    except json.JSONDecodeError:
+        return match.group(1)
+
+
+def _prompt_list(value) -> list[str]:
+    if isinstance(value, list):
+        items = value
+    elif isinstance(value, str):
+        items = _split_commands(value)
+    else:
+        return []
+    prompts = []
+    for item in items:
+        prompt = " ".join(str(item).split()).strip(" .")
+        if prompt and prompt not in prompts:
+            prompts.append(prompt[:180])
+    return prompts
+
+
+_COMMANDS = {
+    "open",
+    "look",
+    "keep",
+    "flag",
+    "show",
+    "let's",
+    "lets",
+    "dismiss",
+    "list",
+    "read",
+    "review",
+}
+
+
+def _split_commands(value: str) -> list[str]:
+    """Split on commas, and keep a comma that sits inside one command."""
+    commands: list[str] = []
+    for part in value.split(","):
+        part = " ".join(part.split())
+        if not part:
+            continue
+        if _starts_command(part):
+            commands.append(part)
+        elif commands:
+            commands[-1] = f"{commands[-1]}, {part}"
+    return commands
+
+
+def _starts_command(part: str) -> bool:
+    word = part.split(" ", 1)[0].casefold().strip(".'\"")
+    return word in _COMMANDS
+
+
+def _reply_text(text: str) -> str:
+    text = text.strip()
+    if text.startswith("```"):
+        text = re.sub(r"^```(?:markdown|md)?\s*", "", text)
+        text = re.sub(r"\s*```$", "", text)
     text = re.sub(r"\n{3,}", "\n\n", text)
     return text.strip()
 

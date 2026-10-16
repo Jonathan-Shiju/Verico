@@ -5,6 +5,8 @@ each account it paid or that paid it. The lead is stored in its own graph.
 case_file opens that lead into the payments between the two accounts.
 """
 
+from GraphIngest.Windows import format_ts
+
 REVIEW_GRAPH = "aml:reviews"
 REVIEW_LIMIT = 12
 PAYMENTS_PER_LEAD = 8
@@ -53,6 +55,7 @@ def open_counterparty_leads(reader, account_id: str, limit: int = REVIEW_LIMIT) 
     if not grouped:
         return {"account": account_id, "error": "That account has no payments to open"}
     _ensure(reader)
+    account_name = (page.get("entity") or {}).get("entity_name") or ""
     opened = []
     for counterparty, payments in list(grouped.items())[:limit]:
         cited = payments[:PAYMENTS_PER_LEAD]
@@ -70,22 +73,48 @@ def open_counterparty_leads(reader, account_id: str, limit: int = REVIEW_LIMIT) 
                 "ts": int(first["ts"]) if first.get("ts") is not None else 0,
             },
         )
+        other = reader._entity(counterparty, first.get("window"))
+        other_name = other.get("entity_name") or ""
         opened.append(
             {
                 "lead": lead,
                 "kind": "counterparty",
                 "counterparty": counterparty,
+                "name": other_name,
                 "txn_ids": [int(row["txn_id"]) for row in cited],
                 "payments": len(cited),
                 "payments_truncated": len(payments) > len(cited),
+                "lines": [
+                    _line(row, account_name or account_id, other_name or counterparty)
+                    for row in cited
+                ],
             }
         )
     return {
         "account": account_id,
+        "name": account_name,
         "kind": "counterparty",
         "leads": opened,
         "truncated": len(grouped) > limit,
         "complete": page.get("complete", True),
+    }
+
+
+def _line(row: dict, account_name: str, other_name: str) -> dict:
+    sent = row.get("direction") == "out"
+    amount = row.get("amount_paid") if sent else row.get("amount_received") or row.get("amount_paid")
+    currency = (
+        row.get("payment_currency")
+        if sent
+        else row.get("receiving_currency") or row.get("payment_currency") or ""
+    )
+    return {
+        "time": format_ts(int(row["ts"])) if row.get("ts") is not None else "",
+        "amount": amount,
+        "currency": currency or "",
+        "format": row.get("payment_format") or "",
+        "from": account_name if sent else other_name,
+        "to": other_name if sent else account_name,
     }
 
 
