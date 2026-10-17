@@ -277,12 +277,12 @@ def _mark_section(answer: str, messages: list[dict], graph: dict | None, holder:
     if not graph or not (payments or accounts):
         return answer
     heading = (
-        "## Should we be careful of this account"
+        "## Account caution"
         if accounts and not payments
-        else "## Is there any suspicious thing"
+        else "## Suspicious activity"
     )
     cleaned = re.sub(
-        r"\n+## (?:Is there any suspicious thing|Should we be careful of this account)\n.*?(?=\n## |\Z)",
+        r"\n+## (?:Suspicious activity|Account caution|Is there any suspicious thing|Should we be careful of this account)\n.*?(?=\n## |\Z)",
         "",
         answer,
         flags=re.S,

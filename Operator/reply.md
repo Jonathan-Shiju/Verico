@@ -32,13 +32,13 @@ For payments, group every payment that shares the same sender and the same recei
 
 After the payments, add this heading. Read the mark stored for each account in these payments. A mark means many accounts sent money to this one, this one sent money to many accounts, or one payment that left matched the payments that arrived. Say that in ordinary words. A mark is not a lead, and it is not a finding of fraud. If there is no mark, say so. Do not invent one.
 
-## Is there any suspicious thing
+## Suspicious activity
 
 What the marks show, or that there is no mark.
 
 When the reply is one account or one party, add this heading instead. It is the same mark, for that account.
 
-## Should we be careful of this account
+## Account caution
 
 What the mark shows for this account, or that there is no mark.
 
