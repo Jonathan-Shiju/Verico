@@ -1229,20 +1229,35 @@ h1 {
 }
 
 @media (max-width: 800px) {
+  :root {
+    --header: 8.9rem;
+  }
+
   .route {
     flex-wrap: wrap;
     padding: 0.4rem 0.8rem;
   }
 
   .route nav {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     width: 100%;
+    min-width: 0;
     border-top: 1px solid var(--rule);
   }
 
   .route nav a {
-    flex: 1;
     justify-content: center;
-    padding: 0.45rem 0.3rem;
+    min-width: 0;
+    padding: 0.55rem 0.35rem;
+  }
+
+  .route nav a:nth-child(odd) {
+    border-left: 0;
+  }
+
+  .route nav a:nth-child(n + 3) {
+    border-top: 1px solid var(--rule);
   }
 
   .face {
@@ -1329,19 +1344,21 @@ h1 {
 
   .workspace,
   .workspace.wide {
-    height: auto;
-    min-height: calc(100vh - var(--header));
+    height: calc(100svh - var(--header));
+    min-height: 0;
     grid-template-columns: 1fr;
+    overflow: visible;
   }
 
   .conversation {
-    min-height: 70vh;
+    height: calc(100svh - var(--header));
+    min-height: 0;
     border-right: 0;
     border-bottom: 2px solid var(--ink);
   }
 
   .method {
-    --sheet-top: 6rem;
+    --sheet-top: var(--header);
     grid-template-columns: 1fr;
     gap: 0;
     padding: 0 1rem 3rem;
@@ -1361,12 +1378,13 @@ h1 {
 
   .method-rail {
     position: sticky;
-    top: 6rem;
+    top: var(--header);
     z-index: 2;
     margin-left: 0;
     flex-direction: row;
-    gap: 1.15rem;
-    overflow-x: auto;
+    flex-wrap: wrap;
+    gap: 0.45rem 1.15rem;
+    overflow: visible;
     padding: 0.75rem 0;
     background: var(--paper);
     border-bottom: 1px solid var(--rule);
@@ -1396,7 +1414,7 @@ h1 {
     margin-top: 1.35rem;
     padding-top: 1.15rem;
     border-top: 2px solid var(--ink);
-    scroll-margin-top: 9.2rem;
+    scroll-margin-top: calc(var(--header) + 5.5rem);
   }
 
   .method-copy {
