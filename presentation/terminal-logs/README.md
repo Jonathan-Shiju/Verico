@@ -4,7 +4,7 @@ Copies of Cursor terminal sessions for the pipeline. Each file includes the sess
 
 No Redis-load session was in the terminal folder. The completed ingest log records the account registry used for the windows: 518,581 accounts.
 
-Watermarks are the progress lines inside the ingest logs.
+Watermarks are the progress lines inside the ingest log.
 
 ## Completed pipeline runs
 
@@ -46,49 +46,3 @@ Per-window done lines:
 - `aml:txn:20220909T0000 done: accounts=354,584 flags=1,674 in 809s`
 - `aml:txn:20220913T0000 done: accounts=292 flags=9 in 1s`
 - `aml:txn:20220917T0000 done: accounts=29 flags=0 in 0s`
-
-## Earlier ingest sessions
-
-These exited before a full write of 5,078,345 rows. The completed run is `ingest-graph.log`.
-
-### `ingest-graph-alongside-replay.log`
-
-Command: `sleep 5; .venv/bin/python scripts/ingest_graph.py --topic transactions --idle-exit 60`
-
-Started 2026-10-15T02:19:06Z, ended 2026-10-15T02:47:38Z, exit 143.
-
-The last progress line shows `written=2,207,070` and watermark `2022/09/04 01:20`.
-
-### `ingest-graph-early.log`
-
-Command: `.venv/bin/python scripts/ingest_graph.py --topic transactions --idle-exit 60`
-
-Started 2026-10-15T02:16:17Z, ended 2026-10-15T02:17:52Z, exit code unknown.
-
-The last progress line shows `written=517,476` and watermark `2022/09/01 06:10`.
-
-### `ingest-graph-restart.log`
-
-Command: `.venv/bin/python scripts/ingest_graph.py --topic transactions --idle-exit 90`
-
-Started 2026-10-15T02:00:24Z, ended 2026-10-15T02:01:03Z, exit code unknown.
-
-The last progress line shows `written=63,469` and watermark `-`.
-
-### `ingest-graph-startup-error.log`
-
-Command: background `scripts/replay_transactions.py` (output redirected to `/tmp/replay.log`, not in this file), then `.venv/bin/python scripts/ingest_graph.py --topic transactions --idle-exit 90`
-
-Started 2026-10-15T02:00:00Z, ended 2026-10-15T02:00:16Z, exit 1.
-
-The ingestor raised `AttributeError: 'str' object has no attribute 'decode'` before writing a progress line.
-
-## MCP
-
-### `mcp-list.log`
-
-Command: `gemini --skip-trust mcp list`
-
-Started 2026-10-15T04:27:12Z, ended 2026-10-15T04:28:38Z, status aborted.
-
-The process aborted during Gemini authentication and did not print a server list. The log contains no credential values.
