@@ -4,3 +4,4 @@ transactions_files/
 /__pycache__/
 *.pyc
 /.DS_Store
+PRODUCT.md

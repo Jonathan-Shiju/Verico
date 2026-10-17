@@ -18,10 +18,15 @@ function demoApiFromEnv() {
 }
 
 const demoApi = demoApiFromEnv();
+const upstream = (process.env.DEMO_API_UPSTREAM || "").trim().replace(/\/$/, "");
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   env: demoApi ? { NEXT_PUBLIC_DEMO_API: demoApi } : {},
+  async rewrites() {
+    if (!upstream) return [];
+    return [{ source: "/demo/:path*", destination: `${upstream}/demo/:path*` }];
+  },
 };
 
 export default nextConfig;

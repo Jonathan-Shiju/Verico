@@ -1,0 +1,3 @@
+# Detection
+
+Finds leads in payments that are already stored. `TreeLoopDetector.py` follows a payment forward in time. A loop is money that left an account and later came back. `LoopSink.py` writes those loops to `aml:loops`. `ResidueCases.py` writes cases to `aml:cases` after a similar incoming payment and a later outgoing payment are paired off. A pooled case is several incoming payments that match one outgoing payment. A split case is one incoming payment that matches several outgoing payments. An account with a wide set of counterparties is left out of that scan, because that residue is ordinary activity.

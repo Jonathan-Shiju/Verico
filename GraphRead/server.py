@@ -292,7 +292,7 @@ def explain_transactions(txn_ids: list[int]) -> dict:
 
 @server.tool()
 def flags_for_account(account_id: str, limit: int = 20) -> dict:
-    """Tier-1 window flags for an account: fan-in, fan-out, or a payout that
+    """Marks on an account: fan-in, fan-out, or a payout that
     matches the sum of recent incoming payments."""
     return reader.flags_for_account(account_id, limit)
 

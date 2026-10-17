@@ -70,14 +70,11 @@ def list_leads(reader: GraphReader, kind: str = "all", skip: int = 0, limit: int
     limit = max(1, min(limit, LEAD_PAGE))
     leads = []
     if kind in {"all", "loop"}:
-        leads.extend(_lead_page(reader, LOOP_GRAPH, LIST_LOOPS, skip, limit, "loop"))
+        leads.extend(_stored_page(reader, LOOP_GRAPH, LIST_LOOPS, skip, limit, "loop"))
     if kind in {"all", "residue"}:
-        leads.extend(_lead_page(reader, CASE_GRAPH, LIST_CASES, skip, limit, "residue"))
+        leads.extend(_stored_page(reader, CASE_GRAPH, LIST_CASES, skip, limit, "residue"))
     if kind == "review":
-        try:
-            leads.extend(_lead_page(reader, REVIEW_GRAPH, LIST_REVIEWS, skip, limit, "review"))
-        except redis.ResponseError:
-            pass
+        leads.extend(_stored_page(reader, REVIEW_GRAPH, LIST_REVIEWS, skip, limit, "review"))
     return {
         "kind": kind,
         "skip": skip,
@@ -155,6 +152,16 @@ def walk_transaction(reader: GraphReader, txn_id: int, depth: int = WALK_DEPTH) 
         "steps": steps,
         "truncated": truncated,
     }
+
+
+def _stored_page(
+    reader: GraphReader, graph: str, query: str, skip: int, limit: int, source: str
+) -> list[dict]:
+    """A missing graph is an empty page. Loops can exist before cases or reviews."""
+    try:
+        return _lead_page(reader, graph, query, skip, limit, source)
+    except redis.ResponseError:
+        return []
 
 
 def _lead_page(

@@ -1,4 +1,4 @@
-"""Run the tier-1 window checks over transfers already stored in FalkorDB."""
+"""Run the mark checks over transfers already stored in FalkorDB."""
 
 import logging
 import sys

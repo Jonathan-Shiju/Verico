@@ -238,7 +238,12 @@ class ResidueScanner:
         self.case_graph = case_graph
         self._ready = False
 
-    def scan_window(self, window: str) -> dict[str, int]:
+    def scan_window(self, window: str, need: dict[str, int] | None = None) -> dict[str, int]:
+        """Scan one window. `need` is how many of each kind are still wanted.
+
+        A full scan passes need=None. A t3.small slice can pass {"pooled": 1, "split": 1}
+        and stop once each has been written.
+        """
         self._ensure()
         self.graph_db.ensure_indexes(window, [ENTITY_INDEX])
         counts = {"accounts": 0, "pooled": 0, "split": 0}
@@ -266,13 +271,17 @@ class ResidueScanner:
                         Payment(int(txn_id), int(ts), float(amount), currency, other, direction)
                     )
                 cases = []
+                done = False
                 for account, payments in by_account.items():
                     for case in explain_account(payments, self.config):
+                        kind = case["kind"]
+                        if need is not None and need.get(kind, 0) <= 0:
+                            continue
                         part_txns = ",".join(str(txn_id) for txn_id in case["part_txns"])
                         cases.append(
                             {
-                                "id": f"{case['kind']}:{window}:{account}:{case['focal_txn']}",
-                                "kind": case["kind"],
+                                "id": f"{kind}:{window}:{account}:{case['focal_txn']}",
+                                "kind": kind,
                                 "account": account,
                                 "window": window,
                                 "focal_txn": case["focal_txn"],
@@ -283,8 +292,17 @@ class ResidueScanner:
                                 "ts": case["ts"],
                             }
                         )
-                        counts[case["kind"]] += 1
+                        counts[kind] += 1
+                        if need is not None:
+                            need[kind] -= 1
+                            if all(left <= 0 for left in need.values()):
+                                done = True
+                                break
+                    if done:
+                        break
                 self._write(cases)
+                if done:
+                    return counts
             skip += len(ids)
             logger.info(
                 "%s accounts=%s pooled=%s split=%s",

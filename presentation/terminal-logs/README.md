@@ -1,10 +1,10 @@
 # Terminal logs
 
-Copies of Cursor terminal sessions for the AML pipeline. Each file includes the session metadata header (`pid`, `cwd`, `command`, `started_at`, `status`) and the command output. Log line timestamps are local time (UTC+5:30). Header timestamps are UTC.
+Copies of Cursor terminal sessions for the pipeline. Each file includes the session metadata header (`pid`, `cwd`, `command`, `started_at`, `status`) and the command output. Log line timestamps are local time (UTC+5:30). Header timestamps are UTC.
 
 No Redis-load session was in the terminal folder. The completed ingest log records the account registry used for the windows: 518,581 accounts.
 
-Watermarks are progress lines inside the ingest logs, not a separate session.
+Watermarks are the progress lines inside the ingest logs.
 
 ## Completed pipeline runs
 
@@ -22,7 +22,7 @@ Command: `.venv/bin/python scripts/ingest_graph.py --topic transactions --group 
 
 Started 2026-10-15T03:33:33Z, ended 2026-10-15T04:03:49Z, exit 0.
 
-This is the completed FalkorDB window ingest: it registered 518,581 accounts, wrote 5,078,345 transactions with `dead_lettered` 0, and the last watermark is `2022/09/16 06:00`. Windows logged as closed are `aml:txn:20220828T0000`, `aml:txn:20220901T0000`, and `aml:txn:20220905T0000`.
+The completed FalkorDB window ingest registered 518,581 accounts, wrote 5,078,345 transactions with `dead_lettered` 0, and the last watermark is `2022/09/16 06:00`. Windows logged as closed are `aml:txn:20220828T0000`, `aml:txn:20220901T0000`, and `aml:txn:20220905T0000`.
 
 ### `detect-loops-rebuild.log`
 

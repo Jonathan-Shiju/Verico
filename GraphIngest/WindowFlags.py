@@ -1,4 +1,4 @@
-"""Tier-1 flags read from a window graph after its transfers are written.
+"""Marks read from a window graph after its transfers are written.
 
 Fan-in and fan-out count distinct counterparties in that window. A gather
 flag is an outgoing payment that matches the sum of the most recent incoming

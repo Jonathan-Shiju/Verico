@@ -157,6 +157,45 @@ h1 {
   text-transform: uppercase;
 }
 
+.blog {
+  padding-top: 2rem;
+}
+
+.blog h1 {
+  font-size: clamp(2.4rem, 6vw, 3.6rem);
+  margin-bottom: 1rem;
+}
+
+.blog time {
+  display: block;
+  margin-bottom: 1.25rem;
+  color: var(--carbon);
+  font-weight: 600;
+}
+
+.blog-index {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.blog-index li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.blog article p,
+.blog > p {
+  max-width: 68ch;
+}
+
+.blog article a {
+  color: var(--carbon);
+}
+
 .pitch {
   display: grid;
   grid-template-columns: 1fr auto;

@@ -147,6 +147,8 @@ async def check_mcp(tools: list, lead: str) -> dict:
     if explained.get("error") or explained.get("missing") or not explained.get("graphs"):
         raise RuntimeError("explain_transactions did not return a graph of the lead")
     leads = _unwrap(await by_name["list_leads"].ainvoke({"kind": "all", "limit": 3}))
+    if leads.get("error"):
+        raise RuntimeError("list_leads failed: " + str(leads["error"]))
     if not leads.get("leads"):
         raise RuntimeError("list_leads returned no leads")
     summary = _unwrap(
