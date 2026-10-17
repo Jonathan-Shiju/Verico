@@ -31,7 +31,7 @@ server = MCPServer(
         "that left an account and later came back. Do not say residue, pooled, "
         "split, walk, step, depth, window, graph, or tool. Several payments "
         "that add up, or one payment divided into several, are described in "
-        "those words. If later payments stop, say the money stopped there.\n\n"
+        "those words.\n\n"
         "Window graphs, loops, cases, and flags cannot be modified.\n\n"
         "Account id. The bank number with leading zeros removed, a colon, and "
         "the account number. No account list is provided here. Look an account "
@@ -122,13 +122,13 @@ decisions = DecisionStore(reader.graph_db)
 
 
 @server.tool()
-def list_leads(kind: str = "all", skip: int = 0, limit: int = 20) -> dict:
+def list_leads(kind: str = "all", skip: int = 0, limit: int = 3) -> dict:
     """Page the leads an operator can open.
 
-    kind is loop, residue, review, or all. For all, limit applies to each of
-    loop and residue. review is the counterparty leads an operator ordered
-    opened, and it is not included in all. A returned lead is opened with
-    case_file.
+    kind is loop, residue, review, or all. limit is at most 3, and for all it
+    applies to loops and to residues separately. review is the counterparty
+    leads an operator ordered opened, and it is not included in all. A returned
+    lead is opened with case_file. Do not ask for more than 3.
     """
     return read_leads(reader, kind, skip, limit)
 

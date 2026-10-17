@@ -16,7 +16,7 @@ from GraphRead.explain import _find_transfer
 from GraphRead.reader import LOOP_GRAPH, TRANSFER_PAGE, GraphReader, _page_query, _rows
 from GraphRead.reviews import LIST_REVIEWS, REVIEW_GRAPH
 
-LEAD_PAGE = 20
+LEAD_PAGE = 3
 WALK_DEPTH = 3
 WALK_CHILDREN = 8
 WALK_EDGES = 24
@@ -63,7 +63,11 @@ def list_leads(reader: GraphReader, kind: str = "all", skip: int = 0, limit: int
     if kind not in {"all", "loop", "residue", "review"}:
         return {"error": "kind is loop, residue, review, or all"}
     skip = max(0, skip)
-    limit = max(1, min(limit, 50))
+    try:
+        limit = int(limit)
+    except (TypeError, ValueError):
+        limit = LEAD_PAGE
+    limit = max(1, min(limit, LEAD_PAGE))
     leads = []
     if kind in {"all", "loop"}:
         leads.extend(_lead_page(reader, LOOP_GRAPH, LIST_LOOPS, skip, limit, "loop"))

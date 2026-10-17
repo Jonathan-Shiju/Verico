@@ -11,6 +11,7 @@ this chat writes one.
 import asyncio
 import json
 import os
+import re
 import sys
 import warnings
 from pathlib import Path
@@ -33,7 +34,10 @@ from adapters.graphdb import FalkorGraphDB  # noqa: E402
 from adapters.staticdb import Redis  # noqa: E402
 from langchain.mcp import MCPAdapter  # noqa: E402
 
-from GraphRead.reader import GraphReader  # noqa: E402
+from GraphRead.reader import LOOP_GRAPH, GraphReader  # noqa: E402
+from GraphRead.reviews import REVIEW_GRAPH  # noqa: E402
+from GraphIngest.WindowFlags import FLAG_GRAPH  # noqa: E402
+from Detection.ResidueCases import CASE_GRAPH  # noqa: E402
 from Operator.ConversationLog import ConversationLog, calls_from_messages  # noqa: E402
 from Operator.session import REQUIRED, investigate, open_agent, server_client  # noqa: E402
 from Operator.workbook import CASES  # noqa: E402
@@ -121,16 +125,25 @@ async def messages(body: MessageIn):
                         emit=emit,
                     )
                 graph, focal = _graph(holder, answer.get("messages") or [])
+                _remember_stage(holder, answer.get("messages") or [])
                 book = _book(holder, answer.get("messages") or [])
+                spoken = _mark_section(
+                    answer.get("answer") or "",
+                    answer.get("messages") or [],
+                    graph,
+                    holder,
+                )
+                prompts = _shape_prompts(answer.get("prompts") or [], text, holder)
                 await queue.put(
                     (
                         "done",
                         {
                             "type": "done",
                             "session_id": session_id,
-                            "answer": answer.get("answer") or "",
+                            "answer": spoken,
                             "graph": graph,
                             "book": book,
+                            "prompts": prompts,
                         },
                     )
                 )
@@ -172,7 +185,10 @@ def book(session_id: str):
 def _graph(holder: dict, messages: list[dict]) -> tuple[dict | None, str | None]:
     payments, names, subject, focal = _tool_payments(messages)
     if not payments:
-        return holder.get("graph"), holder.get("focal")
+        graph = holder.get("graph")
+        if graph:
+            _apply_marks(holder, graph)
+        return graph, holder.get("focal")
     if subject is None:
         subject = _busiest(payments)
     kept = [row for row in payments if subject in (row["src"], row["dst"])] or payments
@@ -209,9 +225,131 @@ def _graph(holder: dict, messages: list[dict]) -> tuple[dict | None, str | None]
         for row in sorted(kept, key=lambda row: (row["time"], row["txn_id"]))
     ]
     graph = {"focal": focal_id, "nodes": nodes, "edges": edges}
+    _apply_marks(holder, graph)
     holder["graph"] = graph
     holder["focal"] = focal_id
     return graph, focal_id
+
+
+_FLAGGED = """
+MATCH (f:Flag)
+WHERE f.account IN $ids
+RETURN DISTINCT f.account AS account
+"""
+
+_IN_LOOP = """
+MATCH (a:Account)-[:IN_LOOP]->(:Loop)
+WHERE a.id IN $ids
+RETURN DISTINCT a.id AS account
+"""
+
+_IN_CASE = """
+MATCH (c:Case)
+WHERE c.account IN $ids
+RETURN DISTINCT c.account AS account
+"""
+
+_IN_REVIEW = """
+MATCH (r:Review)
+WHERE r.account IN $ids OR r.counterparty IN $ids
+RETURN r.account AS account, r.counterparty AS counterparty
+"""
+
+
+_FLAG_DETAIL = """
+MATCH (f:Flag)
+WHERE f.account IN $ids
+RETURN f.account AS account, f.rule AS rule
+"""
+
+_MARK_WORDS = {
+    "fan_in": "many accounts sent money to {name}",
+    "fan_out": "{name} sent money to many accounts",
+    "gather": "a payment that left {name} matched the payments that arrived",
+}
+
+
+def _mark_section(answer: str, messages: list[dict], graph: dict | None, holder: dict) -> str:
+    """The mark section is taken from the stored flags, not from a guess."""
+    tools = {message.get("name") for message in messages if message.get("type") == "tool"}
+    payments = tools & {"case_file", "explain_transactions", "walk_transaction"}
+    accounts = tools & {"summarize", "account_activity", "account_transfers", "open_counterparty_leads"}
+    if not graph or not (payments or accounts):
+        return answer
+    heading = (
+        "## Account caution"
+        if accounts and not payments
+        else "## Suspicious activity"
+    )
+    cleaned = re.sub(
+        r"\n+## (?:Suspicious activity|Account caution|Is there any suspicious thing|Should we be careful of this account)\n.*?(?=\n## |\Z)",
+        "",
+        answer,
+        flags=re.S,
+    ).rstrip()
+    return f"{cleaned}\n\n{heading}\n\n{_mark_words(holder, graph)}"
+
+
+def _mark_words(holder: dict, graph: dict) -> str:
+    nodes = graph.get("nodes") or []
+    names = {node["id"]: node.get("name") or node["id"] for node in nodes}
+    rows = _rows(
+        GraphReader(holder["log"].graph_db),
+        FLAG_GRAPH,
+        _FLAG_DETAIL,
+        list(names),
+    )
+    said = []
+    lines = []
+    for row in rows:
+        if not row or not row[0]:
+            continue
+        account, rule = str(row[0]), str(row[1] or "")
+        if (account, rule) in said or rule not in _MARK_WORDS:
+            continue
+        said.append((account, rule))
+        sentence = _MARK_WORDS[rule].format(name=names.get(account, account))
+        sentence = sentence[0].upper() + sentence[1:]
+        lines.append(sentence + ". That mark is not a lead.")
+    if not lines:
+        return "There is no mark on these accounts."
+    return " ".join(lines)
+
+
+def _apply_marks(holder: dict, graph: dict) -> None:
+    accounts = {node["id"] for node in graph.get("nodes") or []}
+    marks = _marks(GraphReader(holder["log"].graph_db), accounts)
+    for node in graph["nodes"]:
+        node["mark"] = marks.get(node["id"], "")
+
+
+def _marks(reader: GraphReader, accounts: set[str]) -> dict[str, str]:
+    """Red is a flag already on the account. Brown is a lead the account sits on."""
+    if not accounts:
+        return {}
+    ids = list(accounts)
+    flagged = _column(reader, FLAG_GRAPH, _FLAGGED, ids)
+    leads = set()
+    leads.update(_column(reader, LOOP_GRAPH, _IN_LOOP, ids))
+    leads.update(_column(reader, CASE_GRAPH, _IN_CASE, ids))
+    for row in _rows(reader, REVIEW_GRAPH, _IN_REVIEW, ids):
+        leads.update(str(value) for value in row[:2] if value)
+    return {
+        account: "flagged" if account in flagged else "lead"
+        for account in accounts
+        if account in flagged or account in leads
+    }
+
+
+def _column(reader: GraphReader, graph: str, cypher: str, ids: list[str]) -> set[str]:
+    return {str(row[0]) for row in _rows(reader, graph, cypher, ids) if row and row[0]}
+
+
+def _rows(reader: GraphReader, graph: str, cypher: str, ids: list[str]) -> list:
+    try:
+        return reader.graph_db.read(graph, cypher, {"ids": ids}).result_set or []
+    except Exception:
+        return []
 
 
 def _tool_payments(messages: list[dict]) -> tuple[list[dict], dict[str, str], str | None, int | None]:
@@ -347,6 +485,79 @@ def _safe(session_id: str) -> str:
 
 def _event(payload: dict) -> str:
     return f"data: {json.dumps(payload)}\n\n"
+
+
+CLOSED_FALLBACK = [
+    "Open the first lead",
+    "Look at the next lead",
+    "Show the payments on the third lead",
+]
+OPEN_FALLBACK = [
+    "Let's look at these accounts",
+    "Flag the account and the accounts that dealt with it",
+]
+_ASKS = re.compile(
+    r"^(would you|could you|can you|do you|please (clarify|provide|specify|tell)|which |what |who )",
+    re.I,
+)
+
+
+def _remember_stage(holder: dict, messages: list[dict]) -> None:
+    calls = calls_from_messages(messages)
+    if any(call.startswith("cf:") for call in calls):
+        holder["opened"] = True
+    if any(call.startswith("keep:") for call in calls):
+        holder["kept"] = True
+
+
+def _shape_prompts(prompts: list[str], question: str, holder: dict) -> list[str]:
+    """Keep the officer's next commands in order. Drop questions aimed back at them."""
+    opened = bool(holder.get("opened"))
+    kept = bool(holder.get("kept"))
+    book = bool(holder.get("book"))
+    if opened and not kept:
+        fixed = ["Keep the lead", "Open the case book"]
+    elif opened and not book:
+        fixed = ["Open the case book"]
+    else:
+        fixed = []
+    commands = [prompt for prompt in prompts if _command(prompt)]
+    if not opened:
+        commands = _without_ids(commands)
+    fallback = OPEN_FALLBACK if opened else CLOSED_FALLBACK
+    if len(commands) < 3 - len(fixed):
+        commands = commands + [item for item in fallback if item not in commands]
+    return _merge_prompts(fixed, commands, question)[:3]
+
+
+def _without_ids(commands: list[str]) -> list[str]:
+    """A listed lead is the first, second, or a different one. Tool numbers stay out of the buttons."""
+    if commands and all(re.search(r"\d", command) for command in commands):
+        return ["Open the first lead", "Look at the second lead", "Look at a different lead"]
+    return commands
+
+
+def _command(prompt: str) -> bool:
+    text = " ".join(str(prompt).split())
+    if not text or text.endswith("?"):
+        return False
+    if _ASKS.match(text):
+        return False
+    folded = text.casefold()
+    return "clarify" not in folded and "would you like" not in folded
+
+
+def _merge_prompts(fixed: list[str], extra: list[str], question: str) -> list[str]:
+    asked = question.strip().casefold()
+    prompts = []
+    seen = set()
+    for prompt in fixed + extra:
+        text = " ".join(str(prompt).split())
+        folded = text.casefold()
+        if folded and folded != asked and folded not in seen:
+            seen.add(folded)
+            prompts.append(text[:180])
+    return prompts
 
 
 def _json_error(text: str):

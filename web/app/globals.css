@@ -840,6 +840,7 @@ h1 {
 }
 
 .thread {
+  position: relative;
   flex: 1;
   overflow: auto;
   padding: 1.25rem 1.1rem;
@@ -849,10 +850,48 @@ h1 {
 }
 
 .empty-note {
-  margin: auto;
-  max-width: 28rem;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(28rem, calc(100% - 2.2rem));
+  margin: 0;
+  transform: translate(-50%, -50%);
   text-align: center;
   color: var(--carbon);
+}
+
+.starter {
+  position: absolute;
+  left: 1.1rem;
+  bottom: 1.15rem;
+  margin: 0;
+  border-radius: 999px;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  background: #e7d7b4;
+}
+
+.starter:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.starter:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+
+.prompts {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.45rem;
+  padding: 0.2rem 1.1rem 0.35rem;
+}
+
+.prompts .starter {
+  position: static;
 }
 
 .bubble {
@@ -860,6 +899,7 @@ h1 {
   margin: 0;
   padding: 0.75rem 0.9rem;
   border: 1px solid var(--ink);
+  border-radius: 1rem;
   white-space: pre-wrap;
 }
 
@@ -870,7 +910,46 @@ h1 {
 
 .bubble.agent {
   align-self: flex-start;
-  background: var(--paper);
+  background: #2a5f92;
+  color: #fff;
+  border-color: #2a5f92;
+  white-space: normal;
+}
+
+.bubble.agent h3 {
+  margin: 0.85rem 0 0.2rem;
+  font-family: var(--font-display), "Barlow Condensed", sans-serif;
+  font-size: 1.15rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  line-height: 1.15;
+  text-transform: uppercase;
+}
+
+.bubble.agent h3:first-child,
+.bubble.agent p:first-child {
+  margin-top: 0;
+}
+
+.bubble.agent p {
+  margin: 0.35rem 0;
+}
+
+.bubble.agent ul {
+  margin: 0.15rem 0 0.45rem;
+  padding-left: 1.15rem;
+}
+
+.bubble.agent li {
+  margin: 0.2rem 0;
+}
+
+.bubble.agent strong {
+  font-weight: 650;
+}
+
+.bubble.starter {
+  border-radius: 999px;
 }
 
 .composer {
@@ -988,6 +1067,16 @@ h1 {
 
 .party.subject {
   background: #e7d7b4;
+}
+
+.party.flagged,
+.detail .who .flagged {
+  color: var(--stamp);
+}
+
+.party.lead,
+.detail .who .lead {
+  color: #6b3a1e;
 }
 
 .party.send,
