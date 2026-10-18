@@ -126,6 +126,7 @@ async def messages(body: MessageIn):
                     )
                 graph, focal = _graph(holder, answer.get("messages") or [])
                 _remember_stage(holder, answer.get("messages") or [])
+                _remember_leads(holder, answer.get("messages") or [], text)
                 book = _book(holder, answer.get("messages") or [])
                 spoken = _mark_section(
                     answer.get("answer") or "",
@@ -133,6 +134,9 @@ async def messages(body: MessageIn):
                     graph,
                     holder,
                 )
+                spoken = _flag_reply(spoken, answer.get("messages") or [])
+                spoken = _hide_lead_keys(spoken, holder)
+                spoken = _record_only(spoken, answer.get("messages") or [])
                 prompts = _shape_prompts(answer.get("prompts") or [], text, holder)
                 await queue.put(
                     (
@@ -255,6 +259,12 @@ WHERE r.account IN $ids OR r.counterparty IN $ids
 RETURN r.account AS account, r.counterparty AS counterparty
 """
 
+_REVIEWED = """
+MATCH (r:Review)
+WHERE r.account IN $ids OR r.counterparty IN $ids
+RETURN DISTINCT r.account AS account
+"""
+
 
 _FLAG_DETAIL = """
 MATCH (f:Flag)
@@ -293,12 +303,8 @@ def _mark_section(answer: str, messages: list[dict], graph: dict | None, holder:
 def _mark_words(holder: dict, graph: dict) -> str:
     nodes = graph.get("nodes") or []
     names = {node["id"]: node.get("name") or node["id"] for node in nodes}
-    rows = _rows(
-        GraphReader(holder["log"].graph_db),
-        FLAG_GRAPH,
-        _FLAG_DETAIL,
-        list(names),
-    )
+    reader = GraphReader(holder["log"].graph_db)
+    rows = _rows(reader, FLAG_GRAPH, _FLAG_DETAIL, list(names))
     said = []
     lines = []
     for row in rows:
@@ -311,6 +317,13 @@ def _mark_words(holder: dict, graph: dict) -> str:
         sentence = _MARK_WORDS[rule].format(name=names.get(account, account))
         sentence = sentence[0].upper() + sentence[1:]
         lines.append(sentence + ". That mark is not a lead.")
+    reviewed = sorted(
+        account
+        for account in _column(reader, REVIEW_GRAPH, _REVIEWED, list(names))
+        if account in names
+    )
+    for account in reviewed:
+        lines.append(f"{names[account]} is flagged, with the accounts that dealt with it.")
     if not lines:
         return "There is no mark on these accounts."
     return " ".join(lines)
@@ -324,21 +337,132 @@ def _apply_marks(holder: dict, graph: dict) -> None:
 
 
 def _marks(reader: GraphReader, accounts: set[str]) -> dict[str, str]:
-    """Red is a flag already on the account. Brown is a lead the account sits on."""
+    """Red is a flag on the account. Brown is a lead the account sits on."""
     if not accounts:
         return {}
     ids = list(accounts)
     flagged = _column(reader, FLAG_GRAPH, _FLAGGED, ids)
+    for row in _rows(reader, REVIEW_GRAPH, _IN_REVIEW, ids):
+        flagged.update(str(value) for value in row[:2] if value)
     leads = set()
     leads.update(_column(reader, LOOP_GRAPH, _IN_LOOP, ids))
     leads.update(_column(reader, CASE_GRAPH, _IN_CASE, ids))
-    for row in _rows(reader, REVIEW_GRAPH, _IN_REVIEW, ids):
-        leads.update(str(value) for value in row[:2] if value)
     return {
         account: "flagged" if account in flagged else "lead"
         for account in accounts
         if account in flagged or account in leads
     }
+
+
+def _flag_reply(answer: str, messages: list[dict]) -> str:
+    """A flag names the account. It does not announce a lead."""
+    payload = None
+    for message in messages:
+        if message.get("type") != "tool" or message.get("name") != "open_counterparty_leads":
+            continue
+        loaded = _load(message.get("content"))
+        if isinstance(loaded, dict) and not loaded.get("error"):
+            payload = loaded
+    if payload is None:
+        return answer
+    name = str(payload.get("name") or payload.get("account") or "This account")
+    sentence = f"{name} is flagged. The accounts that dealt with it are listed below."
+    if re.search(r"## Flagged\b", answer):
+        return re.sub(
+            r"(## Flagged\s*\n+).*?(?=\n## |\Z)",
+            lambda match: match.group(1) + sentence + "\n\n",
+            answer,
+            count=1,
+            flags=re.S,
+        )
+    return f"## Flagged\n\n{sentence}\n\n{answer}".strip()
+
+
+_ORDINALS = (
+    "first",
+    "second",
+    "third",
+    "fourth",
+    "fifth",
+    "sixth",
+    "seventh",
+    "eighth",
+    "ninth",
+    "tenth",
+)
+_LEAD_KEY = re.compile(r"\b(?:split|pooled|review|loop):[A-Za-z0-9:]+|\b\d{4,},\d{4,}(?:,\d{4,})*\b")
+_WHICH_LEAD = re.compile(
+    r"\b(first|second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth)\s+lead\b",
+    re.I,
+)
+
+
+def _remember_leads(holder: dict, messages: list[dict], question: str) -> None:
+    """Keep the order the leads were listed, and the number the officer used."""
+    order = holder.setdefault("lead_order", [])
+    labels = holder.setdefault("lead_labels", {})
+    for message in messages:
+        if message.get("type") != "tool" or message.get("name") != "list_leads":
+            continue
+        payload = _load(message.get("content"))
+        if not isinstance(payload, dict):
+            continue
+        for row in payload.get("leads") or []:
+            if not isinstance(row, dict):
+                continue
+            lead = str(row.get("lead") or "")
+            if lead and lead not in order:
+                order.append(lead)
+    match = _WHICH_LEAD.search(question or "")
+    if not match:
+        return
+    phrase = f"the {match.group(1).lower()} lead"
+    for message in messages:
+        for call in message.get("tool_calls") or []:
+            if call.get("name") not in {"case_file", "record_decision", "open_workbook"}:
+                continue
+            key = str((call.get("args") or {}).get("lead") or "")
+            if key:
+                labels[key] = phrase
+
+
+def _lead_phrase(key: str, holder: dict) -> str:
+    labels = holder.get("lead_labels") or {}
+    if key in labels:
+        return labels[key]
+    order = holder.get("lead_order") or []
+    if key in order:
+        index = order.index(key)
+        if index < len(_ORDINALS):
+            return f"the {_ORDINALS[index]} lead"
+        return f"lead {index + 1}"
+    return "this lead"
+
+
+def _record_only(answer: str, messages: list[dict]) -> str:
+    """A keep or a case book is the Record heading. The paragraph before it stays out."""
+    recorded = False
+    for message in messages:
+        for call in message.get("tool_calls") or []:
+            if call.get("name") in {"record_decision", "open_workbook"}:
+                recorded = True
+    if not recorded:
+        return answer
+    match = re.search(r"## Record\b[\s\S]*", answer)
+    if not match:
+        return answer
+    return match.group(0).strip()
+
+
+def _hide_lead_keys(answer: str, holder: dict) -> str:
+    """The case book names the lead by its number, not the stored key."""
+    text = _LEAD_KEY.sub(lambda match: _lead_phrase(match.group(0), holder), answer)
+    return re.sub(
+        r"\blead (the (?:first|second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth) lead|this lead)\b",
+        r"\1",
+        text,
+        flags=re.I,
+    )
 
 
 def _column(reader: GraphReader, graph: str, cypher: str, ids: list[str]) -> set[str]:

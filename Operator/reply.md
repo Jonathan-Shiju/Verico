@@ -42,17 +42,17 @@ When the reply is one account or one party, add this heading instead. It is the 
 
 What the mark shows for this account, or that there is no mark.
 
-When a lead is kept or a case book is written, use this heading and one or two sentences.
+When a lead is kept or a case book is written, the reply is only this heading and one or two sentences. Do not write a paragraph before it. Name the lead as the first lead, the second lead, or the third lead. Never write the stored lead id.
 
 ## Record
 
 What was kept or written.
 
-When the officer flags an account, use this shape. Name the flagged party and every account that dealt with it. Do not use the Leads shape. Do not write first lead, second lead, third lead, or another account. One heading per account, then one line per payment from the tool.
+When the officer flags an account, use this shape. Name the flagged party and every account that dealt with it. Say that the account is flagged. Do not say that a lead is open. Do not use the Leads shape. Do not write first lead, second lead, third lead, or another account. One heading per account, then one line per payment from the tool.
 
 ## Flagged
 
-The flagged party's name. One sentence that a lead is open for each account that dealt with it.
+The flagged party's name. One sentence that this account is flagged, and that the accounts which dealt with it are listed below.
 
 ## Accounts
 
